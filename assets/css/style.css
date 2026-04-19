@@ -1,0 +1,88 @@
+:root {
+    --primary-blue: #2d749a;
+    --light-blue: #d6e6f2;
+    --white: #ffffff;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-blue);
+}
+
+.btn-primary-custom {
+    background-color: var(--primary-blue);
+    color: white;
+    border-radius: 8px;
+    padding: 10px 30px;
+    border: none;
+}
+
+.btn-primary-custom:hover {
+    background-color: #245d7c;
+    color: white;
+}
+
+.card-custom {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.price-text {
+    color: var(--primary-blue);
+    font-weight: bold;
+}
+
+footer {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+/* Tambahan untuk Form */
+.form-label {
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: var(--primary-blue);
+}
+
+.card-layanan-small {
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    background-color: #fcfcfc;
+    transition: 0.3s;
+}
+
+.badge-harga {
+    background-color: #b9e3e9;
+    color: #2d749a;
+    padding: 5px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.btn-pesan-final {
+    background-color: #b9e3e9;
+    color: #2d749a;
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: 0.3s;
+}
+
+.btn-pesan-final:hover {
+    background-color: #a2d2d9;
+    color: #1e5a7a;
+}
