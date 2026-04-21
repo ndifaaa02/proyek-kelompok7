@@ -1,4 +1,5 @@
 <?php include 'includes/header.php'; ?>
+<?php include 'includes.php'; ?>
 
 <section class="text-center py-5">
     <div class="container">

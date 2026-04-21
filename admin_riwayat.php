@@ -1,4 +1,15 @@
 <?php include 'includes/header.php'; ?>
+<?php include 'includes.php';
+$query = "SELECT p.id_pesanan, p.tanggal_masuk, p.tanggal_selesai, pl.nama_pelanggan, 
+                 l.nama_layanan, t.total_bayar, p.status_pesanan 
+          FROM PESANAN p
+          JOIN PELANGGAN pl ON p.id_pelanggan = pl.id_pelanggan
+          JOIN DETAIL_PESANAN dp ON p.id_pesanan = dp.id_pesanan
+          JOIN LAYANAN l ON dp.id_layanan = l.id_layanan
+          JOIN TRANSAKSI t ON p.id_pesanan = t.id_pesanan";
+$result = mysqli_query($conn, $query);
+?>
+
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-5 text-start">
         <div class="d-flex align-items-center">
@@ -34,27 +45,26 @@
                         <th>Status</th>
                     </tr>
                 </thead>
-                <tbody class="small">
+               <tbody class="small">
+                    <?php while($row = mysqli_fetch_assoc($result)): ?>
                     <tr>
-                        <td class="fw-bold">ORD1A2B3C4D</td>
-                        <td>05/01/2026</td>
-                        <td>06/01/2026</td>
-                        <td>Agus Setiawan</td>
-                        <td>Cuci Setrika</td>
-                        <td class="text-primary fw-bold">Rp 43.400</td>
-                        <td><span class="badge bg-light text-muted px-3 py-2">Selesai</span></td>
+                        <td class="fw-bold"><?php echo $row['id_pesanan']; ?></td>
+                        <td><?php echo date('d/m/Y', strtotime($row['tanggal_masuk'])); ?></td>
+                        <td><?php echo date('d/m/Y', strtotime($row['tanggal_selesai'])); ?></td>
+                        <td><?php echo $row['nama_pelanggan']; ?></td>
+                        <td><?php echo $row['nama_layanan']; ?></td>
+                        <td class="text-primary fw-bold">Rp <?php echo number_format($row['total_bayar'], 0, ',', '.'); ?></td>
+                        <td>
+                            <?php 
+                                $status = $row['status_pesanan'];
+                                $class = ($status == 'Selesai') ? 'bg-light text-muted' : 'bg-info-light text-info';
+                            ?>
+                            <span class="badge <?php echo $class; ?> px-3 py-2"><?php echo $status; ?></span>
+                        </td>
                     </tr>
-                    <tr>
-                        <td class="fw-bold">ORD4H8N2Q5D</td>
-                        <td>20/02/2026</td>
-                        <td>21/02/2026</td>
-                        <td>Ahmad Rizki</td>
-                        <td>Express</td>
-                        <td class="text-primary fw-bold">Rp 25.000</td>
-                        <td><span class="badge bg-info-light text-info px-3 py-2">Siap Diambil</span></td>
-                    </tr>
+                    <?php endwhile; ?>
                 </tbody>
-            </table>
+            </table>`
         </div>
     </div>
 </div>
