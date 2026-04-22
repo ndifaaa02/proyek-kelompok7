@@ -1,12 +1,21 @@
-<?php include 'includes/header.php'; ?>
+<?php include 'includes/header.php';?>
+<?php include 'includes.php';?>
+<?php
+session_start();
+
+if (!isset($_SESSION['login'])) {
+    header("Location: admin_login.php");
+    exit;
+}
+?>
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-5 text-start">
         <div>
-            <h2 class="fw-bold mb-0">Dashboard</h2>
-            <p class="text-secondary mb-0">Admin Dashboard</p>
+            <h2 class="fw-bold mb-3">Dashboard Admin</h2>
+            <p class="text-secondary mb-0">Selamat Datang, <b style="color: #2e8dc0ff;"><?= $_SESSION['nama_pegawai']; ?></b></p>
         </div>
-        <a href="admin_login.php" class="btn bg-white text-dark shadow-sm rounded-pill px-4 py-2 fw-bold border-0">
+        <a href="logout.php" class="btn bg-white text-dark shadow-sm rounded-pill px-4 py-2 fw-bold border-0">
             Logout <i class="bi bi-arrow-right ms-2"></i>
         </a>
     </div>

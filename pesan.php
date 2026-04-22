@@ -1,4 +1,13 @@
 <?php include 'includes/header.php'; ?>
+<?php include 'includes.php'; 
+
+$query = mysqli_query($conn, "SELECT * FROM layanan");
+    $layanan = [];
+    while($row = mysqli_fetch_assoc($query)){
+        $layanan[$row['id_layanan']] = $row['harga_perkg'];
+    }
+
+?>
 
 <div class="container py-4">
     <div class="d-flex align-items-center mb-4">
@@ -41,28 +50,28 @@
                     <div class="card-layanan-small p-3 h-100">
                         <h6 class="fw-bold mb-1">Cuci Kering</h6>
                         <p class="text-muted small mb-2">Pakaian di cuci dan dikeringkan</p>
-                        <span class="badge-harga">Rp. 5.000/kg</span>
+                        <span class="badge-harga">Rp <?php echo number_format($layanan[1], 0, ',', '.'); ?></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="card-layanan-small p-3 h-100">
                         <h6 class="fw-bold mb-1">Cuci Setrika</h6>
                         <p class="text-muted small mb-2">Cuci kering dan setrika rapi</p>
-                        <span class="badge-harga">Rp. 7.000/kg</span>
+                        <span class="badge-harga">Rp <?php echo number_format($layanan[2], 0, ',', '.'); ?></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="card-layanan-small p-3 h-100">
                         <h6 class="fw-bold mb-1">Setrika Saja</h6>
                         <p class="text-muted small mb-2">Hanya layanan setrika</p>
-                        <span class="badge-harga">Rp. 3.000/kg</span>
+                        <span class="badge-harga">Rp <?php echo number_format($layanan[3], 0, ',', '.'); ?></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="card-layanan-small p-3 h-100">
                         <h6 class="fw-bold mb-1">Express</h6>
                         <p class="text-muted small mb-2">Selesai dalam 24 jam</p>
-                        <span class="badge-harga">Rp. 10.000/kg</span>
+                        <span class="badge-harga">Rp <?php echo number_format($layanan[4], 0, ',', '.'); ?></span>
                     </div>
                 </div>
             </div>

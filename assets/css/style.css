@@ -86,3 +86,10 @@ footer {
     background-color: #a2d2d9;
     color: #1e5a7a;
 }
+
+.card-signup {
+    background-color: white;
+    width: 900px;
+    border-radius: 4%;
+    padding: 5%;
+}

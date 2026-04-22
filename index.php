@@ -1,4 +1,13 @@
 <?php include 'includes/header.php'; ?>
+<?php include 'includes.php';
+
+$query = mysqli_query($conn, "SELECT * FROM layanan");
+    $layanan = [];
+    while($row = mysqli_fetch_assoc($query)){
+        $layanan[$row['id_layanan']] = $row['harga_perkg'];
+    }
+
+?>
 
 <section class="text-center py-5">
     <div class="container">
@@ -42,13 +51,13 @@
         <h3 class="fw-bold text-center mb-5" style="color: #555;">Layanan Kami</h3>
         <div class="row g-4">
             <?php
-            $layanan = [
-                ["Cuci Kering", "Layanan cuci dan kering pakaian dengan standar kebersihan terbaik.", "5000"],
-                ["Cuci Setrika", "Pakaian dicuci bersih dan disetrika rapi siap pakai.", "7000"],
-                ["Setrika Saja", "Layanan khusus untuk pakaian yang sudah bersih.", "3000"],
-                ["Express", "Layanan kilat kebutuhan mendesak selesai dalam 24 jam.", "10000"]
+            $menu_layanan = [
+                ["Cuci Kering", "Layanan cuci dan kering pakaian dengan standar kebersihan terbaik.", $layanan[1]],
+                ["Cuci Setrika", "Pakaian dicuci bersih dan disetrika rapi siap pakai.",$layanan[2]],
+                ["Setrika Saja", "Layanan khusus untuk pakaian yang sudah bersih.", $layanan[3]],
+                ["Express", "Layanan kilat kebutuhan mendesak selesai dalam 24 jam.",$layanan[4]]
             ];
-            foreach ($layanan as $item) : ?>
+            foreach ($menu_layanan as $item) : ?>
                 <div class="col-md-6">
                     <div class="card card-custom p-4 border-0">
                         <h5 class="fw-bold"><?= $item[0] ?></h5>
