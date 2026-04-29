@@ -11,8 +11,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $tgl_masuk = date("Y-m-d");
 
     if (!$id_layanan) {
-        die("Error: Layanan belum dipilih! Pastikan name di HTML adalah id_layanan.");
+        die("Error: Layanan belum dipilih!");
     }
+
+    // --- LANGKAH PENTING: AMBIL HARGA MASTER SAAT INI ---
+    $query_harga = mysqli_query($conn, "SELECT harga_perkg FROM layanan WHERE id_layanan = '$id_layanan'");
+    $data_layanan = mysqli_fetch_assoc($query_harga);
+    
+    if (!$data_layanan) {
+        die("Error: Layanan tidak ditemukan di database.");
+    }
+
+    $harga_saat_ini = $data_layanan['harga_perkg'];
+    $subtotal = $berat * $harga_saat_ini;
+    // ----------------------------------------------------
 
     // 2. Simpan ke tabel pelanggan
     $query_pelanggan = "INSERT INTO pelanggan (nama_pelanggan, no_hp, alamat) VALUES ('$nama', '$telepon', '$alamat')";
@@ -20,21 +32,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id_pelanggan = mysqli_insert_id($conn);
 
     // 3. Simpan ke tabel pesanan 
-    // Pastikan id_pegawai dan tanggal_selesai sudah di-set NULL di phpMyAdmin
     $query_pesanan = "INSERT INTO pesanan (tanggal_masuk, status_pesanan, id_pelanggan) 
                       VALUES ('$tgl_masuk', 'Proses', '$id_pelanggan')";
     
     if (mysqli_query($conn, $query_pesanan)) {
         $id_order = mysqli_insert_id($conn);
 
-        // 4. Simpan ke tabel detail_pesanan
-        // PERUBAHAN: 'jumlah' diganti 'kuantitas'
-        // PERUBAHAN: Menambah 'harga_layanan' & 'subtotal' karena di database NOT NULL (wajib diisi)
+        // 4. Simpan ke tabel detail_pesanan (SNAPSHOT HARGA DI SINI)
+        // Menyimpan $harga_saat_ini ke kolom harga_layanan
         $query_detail = "INSERT INTO detail_pesanan (id_pesanan, id_layanan, kuantitas, harga_layanan, subtotal) 
-                         VALUES ('$id_order', '$id_layanan', '$berat', 0, 0)";
+                         VALUES ('$id_order', '$id_layanan', '$berat', '$harga_saat_ini', '$subtotal')";
 
         if (mysqli_query($conn, $query_detail)) {
-            // Jika berhasil, langsung ke nota
             header("Location: nota.php?id=" . $id_order);
             exit();
         } else {

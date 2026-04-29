@@ -5,7 +5,11 @@ include 'includes.php';
 $id_nota = isset($_GET['id']) ? mysqli_real_escape_string($conn, $_GET['id']) : '';
 
 // Query JOIN yang sudah diperbaiki kolomnya (kuantitas & harga_perkg)
-$sql = "SELECT p.*, c.nama_pelanggan, c.no_hp, c.alamat, d.kuantitas as berat, l.nama_layanan, l.harga_perkg as harga
+// Query yang mengambil harga dari detail_pesanan (d), bukan layanan (l)
+$sql = "SELECT p.*, c.nama_pelanggan, c.no_hp, c.alamat, 
+               d.kuantitas as berat, 
+               d.harga_layanan as harga,  -- MENGAMBIL HARGA SNAPSHOT
+               l.nama_layanan
         FROM pesanan p
         JOIN pelanggan c ON p.id_pelanggan = c.id_pelanggan
         JOIN detail_pesanan d ON p.id_pesanan = d.id_pesanan

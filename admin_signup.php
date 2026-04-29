@@ -63,7 +63,7 @@
 
                         echo "Akun telah berhasil ditambahkan!";
                     } else {
-                        echo "Error: " . mysqli_error($conn);
+                        echo mysqli_error($conn);
                     }
 
                 ?>

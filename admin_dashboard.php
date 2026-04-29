@@ -1,6 +1,8 @@
 <?php include 'includes/header.php';?>
-<?php include 'includes.php';?>
-<?php
+<?php include 'includes.php';
+
+$stats_query = "SELECT COUNT(id_pesanan) as jumlah_pesanan FROM pesanan";
+
 session_start();
 
 if (!isset($_SESSION['login'])) {
@@ -98,6 +100,16 @@ if (!isset($_SESSION['login'])) {
                     <i class="bi bi-star text-primary fs-2 mb-3"></i>
                     <h5 class="fw-bold">Lihat Website</h5>
                     <p class="small text-muted">Kembali ke halaman utama untuk melihat tampilan user</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="admin_signup.php" class="text-decoration-none text-dark">
+                <div class="card border-0 shadow-sm p-4 rounded-4 h-100">
+                    <i class="bi bi-person text-primary fs-2 mb-3"></i>
+                    <h5 class="fw-bold">Tambah  Akun</h5>
+                    <p class="small text-muted">Untuk menambah akun karyawan</p>
                 </div>
             </a>
         </div>

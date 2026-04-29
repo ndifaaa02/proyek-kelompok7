@@ -57,7 +57,7 @@ $query = mysqli_query($conn, "SELECT * FROM layanan");
                 ["Setrika Saja", "Layanan khusus untuk pakaian yang sudah bersih.", $layanan[3]],
                 ["Express", "Layanan kilat kebutuhan mendesak selesai dalam 24 jam.",$layanan[4]]
             ];
-            foreach ($menu_layanan as $item) : ?>
+            foreach ($menu_layanan as $item) : ?> 
                 <div class="col-md-6">
                     <div class="card card-custom p-4 border-0">
                         <h5 class="fw-bold"><?= $item[0] ?></h5>
