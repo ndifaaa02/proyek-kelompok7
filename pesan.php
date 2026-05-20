@@ -1,12 +1,16 @@
-<?php include 'includes/header.php'; ?>
-<?php include 'includes.php'; 
+<?php 
+include 'includes/header.php'; 
+include 'includes/koneksi.php'; 
 
 $query = mysqli_query($conn, "SELECT * FROM layanan");
-    $layanan = [];
-    while($row = mysqli_fetch_assoc($query)){
-        $layanan[$row['id_layanan']] = $row['harga_perkg'];
-    }
+$layanan = [];
+while($row = mysqli_fetch_assoc($query)){
 
+    $layanan[$row['id_layanan']] = [
+        'harga' => $row['harga_perkg'],
+        'estimasi' => $row['estimasi_waktu'] 
+    ];
+}
 ?>
 
 <div class="container py-4">
@@ -41,41 +45,43 @@ $query = mysqli_query($conn, "SELECT * FROM layanan");
             </div>
         </div>
 
-        <div class="card card-custom p-4 mb-4 border-0 shadow-sm">
-            <h5 class="fw-bold mb-1">Pilih Layanan</h5>
-            <p class="text-muted small mb-4">Pilih jenis layanan laundry yang diinginkan</p>
-            
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <div class="card-layanan-small p-3 h-100">
-                        <h6 class="fw-bold mb-1">Cuci Kering</h6>
-                        <p class="text-muted small mb-2">Pakaian di cuci dan dikeringkan</p>
-                        <span class="badge-harga">Rp <?php echo number_format($layanan[1], 0, ',', '.'); ?></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card-layanan-small p-3 h-100">
-                        <h6 class="fw-bold mb-1">Cuci Setrika</h6>
-                        <p class="text-muted small mb-2">Cuci kering dan setrika rapi</p>
-                        <span class="badge-harga">Rp <?php echo number_format($layanan[2], 0, ',', '.'); ?></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card-layanan-small p-3 h-100">
-                        <h6 class="fw-bold mb-1">Setrika Saja</h6>
-                        <p class="text-muted small mb-2">Hanya layanan setrika</p>
-                        <span class="badge-harga">Rp <?php echo number_format($layanan[3], 0, ',', '.'); ?></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card-layanan-small p-3 h-100">
-                        <h6 class="fw-bold mb-1">Express</h6>
-                        <p class="text-muted small mb-2">Selesai dalam 24 jam</p>
-                        <span class="badge-harga">Rp <?php echo number_format($layanan[4], 0, ',', '.'); ?></span>
-                    </div>
-                </div>
-            </div>
+       <div class="row g-3">
+    <div class="col-md-6">
+        <div class="card-layanan-small p-3 h-100">
+            <h6 class="fw-bold mb-1">Cuci Kering</h6>
+            <p class="text-muted small mb-2">Pakaian di cuci dan dikeringkan</p>
+            <span class="badge-harga d-block mb-1">Rp <?php echo number_format($layanan[1]['harga'], 0, ',', '.'); ?></span>
+            <small class="text-primary fw-bold"><i class="bi bi-clock"></i> <?php echo $layanan[1]['estimasi']; ?></small>
         </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card-layanan-small p-3 h-100">
+            <h6 class="fw-bold mb-1">Cuci Setrika</h6>
+            <p class="text-muted small mb-2">Cuci kering dan setrika rapi</p>
+            <span class="badge-harga d-block mb-1">Rp <?php echo number_format($layanan[2]['harga'], 0, ',', '.'); ?></span>
+            <small class="text-primary fw-bold"><i class="bi bi-clock"></i> <?php echo $layanan[2]['estimasi']; ?></small>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card-layanan-small p-3 h-100">
+            <h6 class="fw-bold mb-1">Setrika Saja</h6>
+            <p class="text-muted small mb-2">Hanya layanan setrika</p>
+            <span class="badge-harga d-block mb-1">Rp <?php echo number_format($layanan[3]['harga'], 0, ',', '.'); ?></span>
+            <small class="text-primary fw-bold"><i class="bi bi-clock"></i> <?php echo $layanan[3]['estimasi']; ?></small>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card-layanan-small p-3 h-100">
+            <h6 class="fw-bold mb-1">Express</h6>
+            <p class="text-muted small mb-2">Selesai dalam 24 jam</p>
+            <span class="badge-harga d-block mb-1">Rp <?php echo number_format($layanan[4]['harga'], 0, ',', '.'); ?></span>
+            <small class="text-primary fw-bold"><i class="bi bi-clock"></i> <?php echo $layanan[4]['estimasi']; ?></small>
+        </div>
+    </div>
+</div>
 
         <div class="card card-custom p-4 mb-4 border-0 shadow-sm">
             <div class="row g-3">
