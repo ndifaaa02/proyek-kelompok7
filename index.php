@@ -51,17 +51,24 @@ $query = mysqli_query($conn, "SELECT * FROM layanan");
         <h3 class="fw-bold text-center mb-5" style="color: #555;">Layanan Kami</h3>
         <div class="row g-4">
             <?php
+
             $menu_layanan = [
-                ["Cuci Kering", "Layanan cuci dan kering pakaian dengan standar kebersihan terbaik.", $layanan[1]],
-                ["Cuci Setrika", "Pakaian dicuci bersih dan disetrika rapi siap pakai.",$layanan[2]],
-                ["Setrika Saja", "Layanan khusus untuk pakaian yang sudah bersih.", $layanan[3]],
-                ["Express", "Layanan kilat kebutuhan mendesak selesai dalam 24 jam.",$layanan[4]]
+                ["Cuci Kering", "Layanan cuci dan kering pakaian dengan standar kebersihan terbaik.", $layanan[1] ?? 0, "Estimasi: 2-3 Hari"],
+                ["Cuci Setrika", "Pakaian dicuci bersih dan disetrika rapi siap pakai.", $layanan[2] ?? 0, "Estimasi: 2-3 Hari"],
+                ["Setrika Saja", "Layanan khusus untuk pakaian yang sudah bersih.", $layanan[3] ?? 0, "Estimasi: 2-3 Hari"],
+                ["Express", "Layanan kilat kebutuhan mendesak selesai dalam 24 jam.", $layanan[4] ?? 0, "Estimasi: 24 Jam"]
             ];
+
             foreach ($menu_layanan as $item) : ?> 
                 <div class="col-md-6">
                     <div class="card card-custom p-4 border-0">
                         <h5 class="fw-bold"><?= $item[0] ?></h5>
-                        <p class="text-muted small"><?= $item[1] ?></p>
+                        <p class="text-muted small mb-2"><?= $item[1] ?></p>
+                        
+                        <p class="small text-primary fw-bold mb-2">
+                            <i class="bi bi-clock"></i> <?= $item[3] ?>
+                        </p>
+                        
                         <p class="price-text mb-0">Mulai dari Rp <?= number_format($item[2], 0, ',', '.') ?>/kg</p>
                     </div>
                 </div>
@@ -69,7 +76,6 @@ $query = mysqli_query($conn, "SELECT * FROM layanan");
         </div>
     </div>
 </section>
-
 <section class="py-5">
     <div class="container">
         <div class="bg-white rounded-4 p-5 text-center shadow-sm">
