@@ -1,6 +1,18 @@
 <?php include 'includes/header.php'; ?>
 <?php include 'includes.php'; ?>
 
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 text-start">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-person-add fs-2 text-primary me-3"></i>
+            <h2 class="fw-bold mb-0">Tambah Akun</h2>
+        </div>
+        <a href="admin_dashboard.php" class="btn bg-white text-dark shadow-sm rounded-pill px-4 py-2 fw-bold border-0">
+            <i class="bi bi-arrow-left me-2"></i> Dashboard
+        </a>
+    </div>
+</div>
+
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
     <div class="card-signup">
         <div class="text-center mb-4">
@@ -8,6 +20,7 @@
             <h2 class="fw-bold mt-2">Bintang Laundry</h2>
             <p class="text-secondary">Sign Up Admin Dashboard</p>
         </div>
+
         <form action="admin_signup.php" method="post">
             <div class="mb-3">
                 <label class="fw-bold mb-2">Email</label>

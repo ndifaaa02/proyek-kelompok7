@@ -1,6 +1,7 @@
-<?php include 'includes/header.php'; ?>
-<?php include 'includes.php'; ?>
-<?php session_start();
+<?php
+session_start();
+include 'includes/header.php';
+include 'includes.php';
 ?>
 
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">

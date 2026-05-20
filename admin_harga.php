@@ -13,24 +13,31 @@
     </div>
 
     <div class="card border-0 shadow-sm p-5 rounded-4 mb-4 text-start">
-        <h4 class="fw-bold mb-4" style="color: #2d749a;">Pengaturan Harga Layanan</h4>
+        <div class="d-flex justify-content-between align-items-center mb-4 text-start">
+        <div class="d-flex align-items-center">
+            <h4 class="fw-bold mb-4" style="color: #2d749a;">Pengaturan Harga Layanan</h4>
+        </div>
+        <a href="admin_dashboard.php"class="btn btn-primary shadow-sm rounded-pill px-4 py-2 fw-bold border-0">
+            <i class="bi bi-plus me-2"></i> Tambah Layanan
+        </a>
+    </div>
         <form action="admin_harga.php" method="post">
             <div class="mb-4">
-                <label class="text-primary mb-2">Cuci kering</label>
+                <label class="text-primary mb-2">Reguler</label>
                 <div class="d-flex align-items-center">
                     <span class="me-3 fw-bold">Rp</span>
                     <input type="number" class="form-control border-0 bg-light p-3 rounded-3" value="5000" name="harga[1]">
                 </div>
             </div>
             <div class="mb-4">
-                <label class="text-primary mb-2">Cuci Setrika (per kg)</label>
+                <label class="text-primary mb-2">Express</label>
                 <div class="d-flex align-items-center">
                     <span class="me-3 fw-bold">Rp</span>
                     <input type="number" class="form-control border-0 bg-light p-3 rounded-3" value="7000" name="harga[2]">
                 </div>
             </div>
             <div class="mb-4">
-                <label class="text-primary mb-2">Setrika Saja (per kg)</label>
+                <label class="text-primary mb-2">Super Express</label>
                 <div class="d-flex align-items-center">
                     <span class="me-3 fw-bold">Rp</span>
                     <input type="number" class="form-control border-0 bg-light p-3 rounded-3" value="3000" name="harga[3]">
