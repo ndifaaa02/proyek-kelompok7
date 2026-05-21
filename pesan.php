@@ -1,14 +1,17 @@
 <?php 
 include 'includes/header.php'; 
-include 'includes/koneksi.php'; 
+include 'includes.php'; 
+
+if (!$conn) {
+    die("Koneksi gagal: " . mysqli_connect_error());
+}
 
 $query = mysqli_query($conn, "SELECT * FROM layanan");
 $layanan = [];
 while($row = mysqli_fetch_assoc($query)){
-
     $layanan[$row['id_layanan']] = [
         'harga' => $row['harga_perkg'],
-        'estimasi' => $row['estimasi_waktu'] 
+        'estimasi' => $row['estimasi_waktu']
     ];
 }
 ?>
