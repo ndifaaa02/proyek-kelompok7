@@ -21,7 +21,6 @@ $query = "SELECT
           JOIN layanan l ON dp.id_layanan = l.id_layanan
           JOIN transaksi t ON p.id_pesanan = t.id_pesanan 
           ORDER BY p.id_pesanan DESC";
-// Catatan: Penggunaan JOIN t (transaksi) memastikan hanya pesanan yang sudah dibayar yang tampil.
 
 $result = mysqli_query($conn, $query);
 ?>
@@ -46,10 +45,6 @@ $result = mysqli_query($conn, $query);
                 <p class="text-muted mb-0">Pendapatan Terakumulasi: 
                     <span class="text-success fw-bold">Rp <?php echo number_format($stats['total_pendapatan'] ?? 0, 0, ',', '.'); ?></span>
                 </p>
-            </div>
-            <button class="btn btn-primary-custom px-4 py-2 rounded-3">
-                <i class="bi bi-download me-2"></i> Export CSV
-            </button>
         </div>
 
         <div class="table-responsive">
