@@ -1,5 +1,7 @@
-<?php include 'includes/header.php'; ?>
-<?php include 'includes.php'; ?>
+<?php
+include 'includes/header.php';
+/** @var mysqli $conn */
+include 'includes.php'; ?>
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4 text-start">

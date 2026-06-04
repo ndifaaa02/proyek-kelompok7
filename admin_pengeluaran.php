@@ -1,89 +1,432 @@
 <?php
+session_start();
+
+// 1. Proteksi Halaman Admin
+if (!isset($_SESSION['login'])) {
+    header("Location: admin_login.php");
+    exit;
+}
+
 include 'includes/header.php';
-?>
-<div class="container py-4">
-    <div id="container-form">
-        <div class="d-flex justify-content-between align-items-center mb-4 text-start">
-            <div class="d-flex align-items-center">
-                <i class="bi bi-wallet2 fs-2 text-primary me-3"></i>
-                <h2 class="fw-bold mb-0">Kelola Pengeluaran</h2>
-            </div>
-            <a href="admin_dashboard.php"class="btn bg-white text-dark shadow-sm rounded-pill px-4 py-2 fw-bold border-0">
-                <i class="bi bi-arrow-left me-2"></i> Dashboard
-            </a>
-        </div>
-    
-    <div class="item-form" style="margin-bottom: 10px;">
-        <div class="card border-0 shadow-sm p-5 rounded-4 mb-4 text-start">
-            <h4 class="fw-bold text-primary mb-4">Update Biaya Pengeluaran</h4>
-            <form action="" method="post">
-                    <div class="mb-4">
-                        <label class="fw-bold mb-2" style="color: #2d749a;">Keterangan</label>
-                        <div class="d-flex align-items-center">
-                            <input type="text" class="form-control border-0 bg-light p-3 rounded-3" name="data[]" placeholder="Masukkan Keterangan">
-                        </div>
-                    </div>
+/** @var mysqli $conn */
+include 'includes.php';
 
-                    <div class="mb-4">
-                        <label class="fw-bold mb-2" style="color: #2d749a;">Kategori</label>
-                        <div class="d-flex align-items-center">
-                            <select name="status_pesanan" class="form-select border-0 shadow-sm">
-                                <option value="operasional">Operasional</option>
-                                <option value="dll">Dll</option>
-                            </select>
-                            <button type="submit" name="update_status" class="btn btn-primary shadow-sm"><i class="bi bi-check"></i></button>
-                        </div>
-                    </div>
+// Set zona waktu lokal
+date_default_timezone_set('Asia/Jakarta');
+$hari_ini = date('Y-m-d');
 
-                    <div class="mb-4">
-                        <label class="fw-bold mb-2" style="color: #2d749a;">Total Biaya</label>
-                        <div class="d-flex align-items-center">
-                            <span class="me-3 fw-bold" style="color: #2d749a;">Rp</span>
-                            <input type="number" class="form-control border-0 bg-light p-3 rounded-3" name="data[]" placeholder="Total Biaya">
-                        </div>
-                    </div>
-            </form>
-                 <button type="button" class="btn btn-info w-100 py-3 fw-bold text-white shadow-sm" style="background-color: #b9e3e9; border:none; color: #2d749a !important;" onclick="hapusForm(this)">Hapus</button>
-        </div>
-    </div>
+// Inisialisasi notifikasi alert
+$pesan_sukses = "";
+$pesan_error = "";
 
-    </div>
-                <button type="button" class="btn btn-info w-100 py-3 fw-bold text-white shadow-sm mt-2" style="background-color: #b9e3e9; border:none; color: #2d749a !important;" id="btn-tambah">Tambah Form</button>
-</div>
+// ============================================================
+// PROSES A: TAMBAH DATA PENGELUARAN
+// ============================================================
+if (isset($_POST['tambah_pengeluaran'])) {
+    $tanggals    = $_POST['tanggal_pengeluaran'];
+    $keterangans = $_POST['keterangan'];
+    $kategoris   = $_POST['id_kategori'];
+    $jumlahs     = $_POST['jumlah'];
 
-<script>
-    // Mengambil referensi elemen dari HTML
-const container = document.getElementById('container-form');
-const btnTambah = document.getElementById('btn-tambah');
+    $ada_error = false;
 
-// Fungsi untuk menambah form
-btnTambah.addEventListener('click', function() {
-    // 1. Ambil elemen form pertama sebagai template
-    const formAsli = document.querySelector('.item-form');
-    
-    // 2. Clone/Duplikasi elemen tersebut (true artinya menyalin semua isinya)
-    const formBaru = formAsli.cloneNode(true);
-    
-    // 3. Reset nilai input pada form baru agar tidak ikut tersalin isinya
-    formBaru.querySelector('input').value = '';
-    
-    // 4. Masukkan form baru ke dalam container
-    container.appendChild(formBaru);
-});
+    foreach ($tanggals as $i => $tanggal_input) {
+        $keterangan  = mysqli_real_escape_string($conn, trim($keterangans[$i]));
+        $id_kategori = !empty($kategoris[$i]) ? (int)$kategoris[$i] : "NULL";
+        $jumlah_dana = (int) $jumlahs[$i];
 
-// Fungsi untuk menghapus form tertentu
-function hapusForm(tombol) {
-    // Cek dulu, jangan hapus jika itu satu-satunya form yang tersisa
-    const jumlahForm = document.querySelectorAll('.item-form').length;
-    
-    if (jumlahForm > 1) {
-        // Hapus elemen induk (div .item-form) dari tombol yang diklik
-        tombol.parentElement.remove();
-    } else {
-        alert("Minimal harus ada satu form!");
+        if ($tanggal_input > $hari_ini) {
+            $pesan_error = "Gagal! Tanggal pada form ke-" . ($i + 1) . " tidak boleh melebihi hari ini.";
+            $ada_error = true;
+            break;
+        }
+
+        $query_tambah = "INSERT INTO pengeluaran 
+                            (tanggal_pengeluaran, keterangan, jumlah, id_kategori) 
+                         VALUES 
+                            ('$tanggal_input', '$keterangan', $jumlah_dana, $id_kategori)";
+
+        if (!mysqli_query($conn, $query_tambah)) {
+            $pesan_error = "Gagal menyimpan data ke-" . ($i + 1) . ": " . mysqli_error($conn);
+            $ada_error = true;
+            break;
+        }
+    }
+
+    if (!$ada_error) {
+        $jumlah_tersimpan = count($tanggals);
+        $pesan_sukses = "$jumlah_tersimpan pengeluaran berhasil ditambahkan!";
     }
 }
-</script>
-<?php
-include 'includes/footer.php';
+
+// ============================================================
+// PROSES B: HAPUS DATA PENGELUARAN (Sesuai Tombol Trash di Tabel)
+// ============================================================
+if (isset($_GET['hapus'])) {
+    $id_hapus = (int)$_GET['hapus'];
+    if (mysqli_query($conn, "DELETE FROM pengeluaran WHERE id_pengeluaran = $id_hapus")) {
+        $pesan_sukses = "Pengeluaran berhasil dihapus.";
+    } else {
+        $pesan_error = "Gagal menghapus data.";
+    }
+}
+
+// ============================================================
+// PROSES C: HITUNG TOTAL PENGELUARAN (Kotak Kiri Bawah)
+// ============================================================
+$query_total = mysqli_query($conn, "SELECT SUM(jumlah) AS total FROM pengeluaran");
+$data_total  = mysqli_fetch_assoc($query_total);
+$total_pengeluaran = $data_total['total'] ?? 0;
+
+// D: Ambil opsi kategori untuk Dropdown Select
+$result_kategori = mysqli_query($conn, "SELECT * FROM kategori_pengeluaran"); // Sesuaikan nama tabel kategorimu jika berbeda
+
+// E: Ambil data gabungan pengeluaran untuk ditampilkan di tabel utama
+$query_tabel = "SELECT p.*, k.nama_kategori 
+                FROM pengeluaran p 
+                LEFT JOIN kategori_pengeluaran k ON p.id_kategori = k.id_kategori 
+                ORDER BY p.tanggal_pengeluaran DESC, p.id_pengeluaran DESC";
+$result_pengeluaran = mysqli_query($conn, $query_tabel);
 ?>
+
+<!-- Menambahkan CSS Kustom agar gaya visual persis seperti image_9244ae.png -->
+<style>
+body {
+    background-color: #dbe7f3;
+}
+
+.card-custom {
+    border-radius: 1rem;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background-color: #ffffff;
+}
+
+.btn-custom-blue {
+    background-color: #0d6efd;
+    color: white;
+    font-weight: 600;
+    border-radius: 0.5rem;
+}
+
+.btn-custom-blue:hover {
+    background-color: #0b5ed7;
+    color: white;
+}
+
+.badge-kategori {
+    background-color: #6c757d;
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+    border-radius: 10px;
+}
+
+.btn-action-outline {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.btn-action-edit {
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+
+.btn-action-edit:hover {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.btn-action-delete {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.btn-action-delete:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.form-control-custom {
+    background-color: #f8f9fa;
+    border: 1px solid #f1f3f5;
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.75rem;
+}
+
+.form-control-custom:focus {
+    background-color: #ffffff;
+    border-color: #86b7fe;
+    box-shadow: none;
+}
+</style>
+
+<div class="container py-4 text-start">
+
+    <!-- TOP BAR: Judul & Tombol Kembali ke Dashboard -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <h2 class="fw-bold m-0" style="color: #1e293b;">
+                <i class="bi bi-folder2-open fs-3" style="color: #0d6efd;"></i> Kelola Pengeluaran
+            </h2>
+        </div>
+        <a href="admin_dashboard.php"
+            class="btn btn-white bg-white rounded-pill px-4 py-2 shadow-sm fw-semibold text-dark text-decoration-none border-0">
+            <i class="bi bi-arrow-left me-2"></i> Dashboard
+        </a>
+    </div>
+
+    <!-- NOTIFIKASI ALERT (Persis seperti bilah hijau di atas form) -->
+    <?php if (!empty($pesan_sukses)): ?>
+    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm d-flex align-items-center py-3 mb-4"
+        role="alert" style="background-color: #d1e7dd; color: #0f5132;">
+        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+        <div><?= $pesan_sukses; ?></div>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"
+            style="filter: invert(0);"></button>
+    </div>
+    <?php endif; ?>
+
+    <?php if (!empty($pesan_error)): ?>
+    <div class="alert alert-danger alert-dismissible fade show rounded-3 border-0 shadow-sm d-flex align-items-center py-3 mb-4"
+        role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <div><?= $pesan_error; ?></div>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <?php endif; ?>
+
+    <!-- CARD KOTAK MERAH MUDA: TOTAL PENGELUARAN -->
+    <div class="mb-4">
+        <div class="card border-0 p-3" style="background-color: #fde8e8; border-radius: 1rem;">
+            <div class="small fw-semibold text-secondary mb-1">
+                <span class="text-danger me-1">▲</span> Total Pengeluaran
+            </div>
+            <h2 class="fw-bold text-danger m-0">Rp <?= number_format($total_pengeluaran, 0, ',', '.'); ?></h2>
+        </div>
+    </div>
+
+    <!-- INTERFACES DUA KOLOM UTAMA -->
+    <div class="row g-4">
+        <!-- KOLOM KIRI (Lebar col-md-4): Form Input & Total -->
+        <div class="col-md-4">
+            <!-- form dibuka di sini, MEMBUNGKUS container + tombol simpan -->
+            <form method="POST" action="">
+                <div id="container-form">
+                    <!-- CARD FORM TAMBAH PENGELUARAN -->
+                    <div class="item-form">
+                        <div class="card card-custom p-4 mb-4">
+                            <h5 class="fw-bold text-primary mb-4 d-flex align-items-center">
+                                <i class="bi bi-plus-circle me-2"></i> Tambah Pengeluaran
+                            </h5>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-secondary">Tanggal</label>
+                                <input type="date" name="tanggal_pengeluaran[]" class="form-control form-control-custom"
+                                    max="<?= $hari_ini; ?>" value="<?= $hari_ini; ?>" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-secondary">Keterangan</label>
+                                <input type="text" name="keterangan[]" class="form-control form-control-custom"
+                                    placeholder="Contoh: Beli deterjen" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-secondary">Kategori</label>
+                                <select name="id_kategori[]" class="form-select form-control-custom">
+                                    <option value="">-- Pilih Kategori --</option>
+                                    <?php while($kat = mysqli_fetch_assoc($result_kategori)): ?>
+                                    <option value="<?= $kat['id_kategori']; ?>">
+                                        <?= htmlspecialchars($kat['nama_kategori']); ?>
+                                    </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-semibold text-secondary">Jumlah (Rp)</label>
+                                <input type="number" name="jumlah[]" class="form-control form-control-custom"
+                                    placeholder="Contoh: 50000" required>
+                            </div>
+
+                            <button type="button" class="btn btn-danger" onclick="hapusForm(this)">
+                                <i class="bi bi-trash me-1"></i>Hapus Form
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <!-- form ditutup di sini -->
+            <div class="d-flex justify-content-between mb-4">
+                <button type="button" class="btn btn-info" id="btn-tambah" style="width: 49%;">
+                    <i class="bi bi-plus-lg me-1"></i>Tambah Pengeluaran
+                </button>
+                <button type="submit" name="tambah_pengeluaran" class="btn btn-custom-blue" style="width: 49%;">
+                    <i class="bi bi-floppy2-fill me-1"></i>Simpan
+                </button>
+            </div>
+        </div>
+        <script>
+        const container = document.getElementById('container-form');
+        const btnTambah = document.getElementById('btn-tambah');
+
+        btnTambah.addEventListener('click', function() {
+            const formAsli = document.querySelector('.item-form');
+            const formBaru = formAsli.cloneNode(true);
+
+            //Reset semua input, bukan cuma yang pertama
+            formBaru.querySelectorAll('input').forEach(input => {
+                if (input.type === 'date') {
+                    input.value = '<?= $hari_ini; ?>';
+                } else {
+                    input.value = '';
+                }
+            });
+            formBaru.querySelectorAll('select').forEach(select => {
+                select.selectedIndex = 0;
+            });
+
+            container.appendChild(formBaru);
+        });
+
+        //FIX: nama fungsi hapusForm (camelCase), this = tombol button itu sendiri
+        function hapusForm(tombol) {
+            const jumlahForm = document.querySelectorAll('.item-form').length;
+
+            if (jumlahForm > 1) {
+                //parentElement dari button → card → item-form
+                tombol.closest('.item-form').remove();
+            } else {
+                alert("Minimal harus ada satu form!");
+            }
+        }
+        </script>
+
+        <!-- KOLOM KANAN (Lebar col-md-8): Tabel Daftar Pengeluaran -->
+        <div class="col-md-8">
+            <div class="card card-custom p-4">
+                <h5 class="fw-bold text-dark mb-4">Daftar Pengeluaran</h5>
+                <div class="table-responsive">
+                    <table class="table align-middle text-start mb-0"
+                        style="border-collapse: separate; border-spacing: 0 10px;">
+                        <thead>
+                            <tr class="text-secondary small fw-bold border-bottom">
+                                <th style="width: 5%;">#</th>
+                                <th style="width: 22%;">Tanggal</th>
+                                <th style="width: 28%;">Keterangan</th>
+                                <th style="width: 20%;">Kategori</th>
+                                <th style="width: 15%;">Jumlah</th>
+                                <th class="text-center" style="width: 10%;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (mysqli_num_rows($result_pengeluaran) > 0): ?>
+                            <?php 
+                                $no = 1;
+                                while ($row = mysqli_fetch_assoc($result_pengeluaran)): 
+                                ?>
+                            <tr class="border-bottom">
+                                <td class="text-muted small"><?= $no++; ?></td>
+                                <td class="text-dark fw-medium">
+                                    <?= date('d M Y', strtotime($row['tanggal_pengeluaran'])); ?></td>
+                                <td class="text-muted"><?= htmlspecialchars($row['keterangan']); ?></td>
+                                <td>
+                                    <?php if(!empty($row['nama_kategori'])): ?>
+                                    <span class="badge-kategori"><?= htmlspecialchars($row['nama_kategori']); ?></span>
+                                    <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-danger fw-bold">Rp <?= number_format($row['jumlah'], 0, ',', '.'); ?>
+                                </td>
+                                <td class="d-flex text-center">
+                                    <!-- Tombol Edit (Memicu Javascript) -->
+                                    <button type="button"
+                                        class="btn-action-outline btn-action-edit"
+                                        data-bs-toggle="modal" data-bs-target="#modalEdit"
+                                        data-id="<?= $row['id_pengeluaran']; ?>"
+                                        data-keterangan="<?= htmlspecialchars($row['keterangan']); ?>"
+                                        data-jumlah="<?= $row['jumlah']; ?>" data-kategori="<?= $row['id_kategori']; ?>"
+                                        data-tanggal="<?= $row['tanggal_pengeluaran']; ?>">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <!-- Tombol Hapus Langsung -->
+                                    <a href="admin_pengeluaran.php?hapus=<?= $row['id_pengeluaran']; ?>"
+                                        class="btn-action-outline btn-action-delete ms-1"
+                                        onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')"> 
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
+                            <?php else: ?>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">Belum ada data pengeluaran.</td>
+                            </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ============================================================
+    MODAL POP-UP: EDIT PENGELUARAN (Tetap Tersedia Saat Tombol Edit Diklik)
+============================================================ -->
+<div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 1rem;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold" id="modalEditLabel">Edit Data Pengeluaran</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Mengarahkan form post edit ke penanganan di atas -->
+            <form method="POST" action="">
+                <div class="modal-body py-3">
+                    <input type="hidden" name="id_pengeluaran" id="edit-id">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Tanggal</label>
+                        <input type="date" name="tanggal_pengeluaran" id="edit-tanggal" class="form-control"
+                            max="<?= $hari_ini; ?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Keterangan</label>
+                        <input type="text" name="keterangan" id="edit-keterangan" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Jumlah</label>
+                        <input type="number" name="jumlah" id="edit-jumlah" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" name="edit_pengeluaran" class="btn btn-primary rounded-3">Simpan
+                        Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JAVASCRIPT: Transfer Data Baris Tabel ke Modal Pop-up Edit -->
+<script>
+document.querySelectorAll('.btn-edit').forEach(button => {
+    button.addEventListener('click', function() {
+        document.getElementById('edit-id').value = this.getAttribute('data-id');
+        document.getElementById('edit-keterangan').value = this.getAttribute('data-keterangan');
+        document.getElementById('edit-jumlah').value = this.getAttribute('data-jumlah');
+        document.getElementById('edit-tanggal').value = this.getAttribute('data-tanggal');
+    });
+});
+</script>
+
+<?php include 'includes/footer.php'; ?>

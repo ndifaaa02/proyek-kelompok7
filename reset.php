@@ -1,5 +1,6 @@
 <?php
 include 'includes/header.php';
+/** @var mysqli $conn */
 include 'includes.php';
 
 // Pastikan ada parameter email di URL
@@ -41,14 +42,14 @@ if (isset($_POST['reset'])) {
                 <label class="fw-bold mb-2">Password Baru</label>
                 <div class="input-group bg-light rounded-3 px-3 align-items-center">
                     <i class="bi bi-envelope text-muted"></i>
-                    <input type="email" class="form-control border-0 bg-transparent py-3" placeholder="••••••••" name="new_password" required>
+                    <input type="text" class="form-control border-0 bg-transparent py-3" placeholder="••••••••" name="new_password" required>
                 </div>
             </div>
             <div class="mb-3">
                 <label class="fw-bold mb-2">Konfirmasi Password</label>
                 <div class="input-group bg-light rounded-3 px-3 align-items-center">
                     <i class="bi bi-envelope text-muted"></i>
-                    <input type="email" class="form-control border-0 bg-transparent py-3" placeholder="••••••••" name="confirm_password" required>
+                    <input type="password" class="form-control border-0 bg-transparent py-3" placeholder="••••••••" name="confirm_password" required>
                 </div>
             </div>
             <button type="submit" class="btn btn-info w-100 py-3 fw-bold text-white rounded-3" style="background-color: #b9e3e9; border:none; color: #2d749a !important;" name="reset">Reset Password</button>

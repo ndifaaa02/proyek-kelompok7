@@ -1,5 +1,6 @@
 <?php
 include 'includes/header.php';
+/** @var mysqli $conn */
 include 'includes.php';
 
 if (isset($_POST['check_email'])) {

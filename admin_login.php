@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'includes/header.php';
+/** @var mysqli $conn */
 include 'includes.php';
 ?>
 
