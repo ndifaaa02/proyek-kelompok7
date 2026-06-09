@@ -7,7 +7,7 @@ if (!isset($_SESSION['login'])) {
     exit;
 }
 
-include 'includes/header.php';
+include 'includes/navbar.php';
 /** @var mysqli $conn */
 include 'includes.php';
 
@@ -60,7 +60,35 @@ if (isset($_POST['tambah_pengeluaran'])) {
 }
 
 // ============================================================
-// PROSES B: HAPUS DATA PENGELUARAN (Sesuai Tombol Trash di Tabel)
+// PROSES B: EDIT DATA PENGELUARAN
+// ============================================================
+if (isset($_POST['edit_pengeluaran'])) {
+    $id_pengeluaran      = (int)$_POST['id_pengeluaran'];
+    $tanggal_pengeluaran = mysqli_real_escape_string($conn, $_POST['tanggal_pengeluaran']);
+    $keterangan          = mysqli_real_escape_string($conn, trim($_POST['keterangan']));
+    $id_kategori         = !empty($_POST['id_kategori']) ? (int)$_POST['id_kategori'] : "NULL";
+    $jumlah              = (int)$_POST['jumlah'];
+
+    if ($tanggal_pengeluaran > $hari_ini) {
+        $pesan_error = "Gagal memperbarui! Tanggal pengeluaran tidak boleh melebihi hari ini.";
+    } else {
+        $query_update = "UPDATE pengeluaran SET 
+                            tanggal_pengeluaran = '$tanggal_pengeluaran', 
+                            keterangan = '$keterangan', 
+                            jumlah = $jumlah, 
+                            id_kategori = $id_kategori 
+                         WHERE id_pengeluaran = $id_pengeluaran";
+        
+        if (mysqli_query($conn, $query_update)) {
+            $pesan_sukses = "Data pengeluaran berhasil diperbarui!";
+        } else {
+            $pesan_error = "Gagal memperbarui data pengeluaran: " . mysqli_error($conn);
+        }
+    }
+}
+
+// ============================================================
+// PROSES C: HAPUS DATA PENGELUARAN
 // ============================================================
 if (isset($_GET['hapus'])) {
     $id_hapus = (int)$_GET['hapus'];
@@ -72,16 +100,20 @@ if (isset($_GET['hapus'])) {
 }
 
 // ============================================================
-// PROSES C: HITUNG TOTAL PENGELUARAN (Kotak Kiri Bawah)
+// PROSES D: HITUNG TOTAL PENGELUARAN (Kotak Kiri Bawah)
 // ============================================================
 $query_total = mysqli_query($conn, "SELECT SUM(jumlah) AS total FROM pengeluaran");
 $data_total  = mysqli_fetch_assoc($query_total);
 $total_pengeluaran = $data_total['total'] ?? 0;
 
-// D: Ambil opsi kategori untuk Dropdown Select
-$result_kategori = mysqli_query($conn, "SELECT * FROM kategori_pengeluaran"); // Sesuaikan nama tabel kategorimu jika berbeda
+// E: Ambil opsi kategori ke bentuk array PHP agar dropdown dinamis tidak kosong saat di-clone JavaScript
+$result_kategori = mysqli_query($conn, "SELECT * FROM kategori_pengeluaran");
+$list_kategori = [];
+while ($kat = mysqli_fetch_assoc($result_kategori)) {
+    $list_kategori[] = $kat;
+}
 
-// E: Ambil data gabungan pengeluaran untuk ditampilkan di tabel utama
+// F: Ambil data gabungan pengeluaran untuk ditampilkan di tabel utama
 $query_tabel = "SELECT p.*, k.nama_kategori 
                 FROM pengeluaran p 
                 LEFT JOIN kategori_pengeluaran k ON p.id_kategori = k.id_kategori 
@@ -89,7 +121,6 @@ $query_tabel = "SELECT p.*, k.nama_kategori
 $result_pengeluaran = mysqli_query($conn, $query_tabel);
 ?>
 
-<!-- Menambahkan CSS Kustom agar gaya visual persis seperti image_9244ae.png -->
 <style>
 body {
     background-color: #dbe7f3;
@@ -171,7 +202,6 @@ body {
 
 <div class="container py-4 text-start">
 
-    <!-- TOP BAR: Judul & Tombol Kembali ke Dashboard -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center">
             <h2 class="fw-bold m-0" style="color: #1e293b;">
@@ -184,14 +214,12 @@ body {
         </a>
     </div>
 
-    <!-- NOTIFIKASI ALERT (Persis seperti bilah hijau di atas form) -->
     <?php if (!empty($pesan_sukses)): ?>
     <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm d-flex align-items-center py-3 mb-4"
         role="alert" style="background-color: #d1e7dd; color: #0f5132;">
         <i class="bi bi-check-circle-fill me-2 fs-5"></i>
         <div><?= $pesan_sukses; ?></div>
-        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"
-            style="filter: invert(0);"></button>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     <?php endif; ?>
 
@@ -204,7 +232,6 @@ body {
     </div>
     <?php endif; ?>
 
-    <!-- CARD KOTAK MERAH MUDA: TOTAL PENGELUARAN -->
     <div class="mb-4">
         <div class="card border-0 p-3" style="background-color: #fde8e8; border-radius: 1rem;">
             <div class="small fw-semibold text-secondary mb-1">
@@ -214,14 +241,10 @@ body {
         </div>
     </div>
 
-    <!-- INTERFACES DUA KOLOM UTAMA -->
     <div class="row g-4">
-        <!-- KOLOM KIRI (Lebar col-md-4): Form Input & Total -->
         <div class="col-md-4">
-            <!-- form dibuka di sini, MEMBUNGKUS container + tombol simpan -->
             <form method="POST" action="">
                 <div id="container-form">
-                    <!-- CARD FORM TAMBAH PENGELUARAN -->
                     <div class="item-form">
                         <div class="card card-custom p-4 mb-4">
                             <h5 class="fw-bold text-primary mb-4 d-flex align-items-center">
@@ -242,11 +265,11 @@ body {
                                 <label class="form-label small fw-semibold text-secondary">Kategori</label>
                                 <select name="id_kategori[]" class="form-select form-control-custom">
                                     <option value="">-- Pilih Kategori --</option>
-                                    <?php while($kat = mysqli_fetch_assoc($result_kategori)): ?>
+                                    <?php foreach($list_kategori as $kat): ?>
                                     <option value="<?= $kat['id_kategori']; ?>">
                                         <?= htmlspecialchars($kat['nama_kategori']); ?>
                                     </option>
-                                    <?php endwhile; ?>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="mb-4">
@@ -261,17 +284,18 @@ body {
                         </div>
                     </div>
                 </div>
+
+                <div class="d-flex justify-content-between mb-4">
+                    <button type="button" class="btn btn-info text-white fw-semibold" id="btn-tambah" style="width: 49%;">
+                        <i class="bi bi-plus-lg me-1"></i>Tambah Form
+                    </button>
+                    <button type="submit" name="tambah_pengeluaran" class="btn btn-custom-blue" style="width: 49%;">
+                        <i class="bi bi-floppy2-fill me-1"></i>Simpan
+                    </button>
+                </div>
             </form>
-            <!-- form ditutup di sini -->
-            <div class="d-flex justify-content-between mb-4">
-                <button type="button" class="btn btn-info" id="btn-tambah" style="width: 49%;">
-                    <i class="bi bi-plus-lg me-1"></i>Tambah Pengeluaran
-                </button>
-                <button type="submit" name="tambah_pengeluaran" class="btn btn-custom-blue" style="width: 49%;">
-                    <i class="bi bi-floppy2-fill me-1"></i>Simpan
-                </button>
-            </div>
         </div>
+
         <script>
         const container = document.getElementById('container-form');
         const btnTambah = document.getElementById('btn-tambah');
@@ -280,7 +304,7 @@ body {
             const formAsli = document.querySelector('.item-form');
             const formBaru = formAsli.cloneNode(true);
 
-            //Reset semua input, bukan cuma yang pertama
+            //Reset semua input pada form baru hasil kloning
             formBaru.querySelectorAll('input').forEach(input => {
                 if (input.type === 'date') {
                     input.value = '<?= $hari_ini; ?>';
@@ -295,12 +319,10 @@ body {
             container.appendChild(formBaru);
         });
 
-        //FIX: nama fungsi hapusForm (camelCase), this = tombol button itu sendiri
         function hapusForm(tombol) {
             const jumlahForm = document.querySelectorAll('.item-form').length;
 
             if (jumlahForm > 1) {
-                //parentElement dari button → card → item-form
                 tombol.closest('.item-form').remove();
             } else {
                 alert("Minimal harus ada satu form!");
@@ -308,7 +330,6 @@ body {
         }
         </script>
 
-        <!-- KOLOM KANAN (Lebar col-md-8): Tabel Daftar Pengeluaran -->
         <div class="col-md-8">
             <div class="card card-custom p-4">
                 <h5 class="fw-bold text-dark mb-4">Daftar Pengeluaran</h5>
@@ -345,23 +366,24 @@ body {
                                 </td>
                                 <td class="text-danger fw-bold">Rp <?= number_format($row['jumlah'], 0, ',', '.'); ?>
                                 </td>
-                                <td class="d-flex text-center">
-                                    <!-- Tombol Edit (Memicu Javascript) -->
-                                    <button type="button"
-                                        class="btn-action-outline btn-action-edit"
-                                        data-bs-toggle="modal" data-bs-target="#modalEdit"
-                                        data-id="<?= $row['id_pengeluaran']; ?>"
-                                        data-keterangan="<?= htmlspecialchars($row['keterangan']); ?>"
-                                        data-jumlah="<?= $row['jumlah']; ?>" data-kategori="<?= $row['id_kategori']; ?>"
-                                        data-tanggal="<?= $row['tanggal_pengeluaran']; ?>">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                    <!-- Tombol Hapus Langsung -->
-                                    <a href="admin_pengeluaran.php?hapus=<?= $row['id_pengeluaran']; ?>"
-                                        class="btn-action-outline btn-action-delete ms-1"
-                                        onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')"> 
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button type="button"
+                                            class="btn-action-outline btn-action-edit"
+                                            data-bs-toggle="modal" data-bs-target="#modalEdit"
+                                            data-id="<?= $row['id_pengeluaran']; ?>"
+                                            data-keterangan="<?= htmlspecialchars($row['keterangan']); ?>"
+                                            data-jumlah="<?= $row['jumlah']; ?>" 
+                                            data-kategori="<?= $row['id_kategori']; ?>"
+                                            data-tanggal="<?= $row['tanggal_pengeluaran']; ?>">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <a href="admin_pengeluaran.php?hapus=<?= $row['id_pengeluaran']; ?>"
+                                            class="btn-action-outline btn-action-delete"
+                                            onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')"> 
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                             <?php endwhile; ?>
@@ -379,9 +401,6 @@ body {
     </div>
 </div>
 
-<!-- ============================================================
-    MODAL POP-UP: EDIT PENGELUARAN (Tetap Tersedia Saat Tombol Edit Diklik)
-============================================================ -->
 <div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius: 1rem;">
@@ -389,7 +408,6 @@ body {
                 <h5 class="fw-bold" id="modalEditLabel">Edit Data Pengeluaran</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <!-- Mengarahkan form post edit ke penanganan di atas -->
             <form method="POST" action="">
                 <div class="modal-body py-3">
                     <input type="hidden" name="id_pengeluaran" id="edit-id">
@@ -403,28 +421,40 @@ body {
                         <input type="text" name="keterangan" id="edit-keterangan" class="form-control" required>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label small fw-bold">Kategori</label>
+                        <select name="id_kategori" id="edit-kategori" class="form-select">
+                            <option value="">-- Pilih Kategori --</option>
+                            <?php foreach($list_kategori as $kat): ?>
+                            <option value="<?= $kat['id_kategori']; ?>">
+                                <?= htmlspecialchars($kat['nama_kategori']); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label small fw-bold">Jumlah</label>
                         <input type="number" name="jumlah" id="edit-jumlah" class="form-control" required>
                     </div>
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" name="edit_pengeluaran" class="btn btn-primary rounded-3">Simpan
-                        Perubahan</button>
+                    <button type="submit" name="edit_pengeluaran" class="btn btn-primary rounded-3">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- JAVASCRIPT: Transfer Data Baris Tabel ke Modal Pop-up Edit -->
 <script>
-document.querySelectorAll('.btn-edit').forEach(button => {
+document.querySelectorAll('.btn-action-edit').forEach(button => {
     button.addEventListener('click', function() {
         document.getElementById('edit-id').value = this.getAttribute('data-id');
         document.getElementById('edit-keterangan').value = this.getAttribute('data-keterangan');
         document.getElementById('edit-jumlah').value = this.getAttribute('data-jumlah');
         document.getElementById('edit-tanggal').value = this.getAttribute('data-tanggal');
+        
+        const kategoriId = this.getAttribute('data-kategori');
+        document.getElementById('edit-kategori').value = kategoriId ? kategoriId : "";
     });
 });
 </script>

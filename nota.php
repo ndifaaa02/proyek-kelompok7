@@ -101,4 +101,4 @@ $total_akhir = $total_harga;
     </div>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include 'includes/footer2.php'; ?>

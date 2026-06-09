@@ -170,4 +170,4 @@ $total_pendapatan = $data_pendapatan['total_masuk'] ?? 0;
 })();
 </script>
 
-<?php include 'includes/footer.php'; ?>
+<?php include 'includes/footer2.php'; ?>

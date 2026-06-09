@@ -1,0 +1,135 @@
+:root {
+    --primary-blue: #2d749a;
+    --light-blue: #d6e6f2;
+    --white: #ffffff;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-blue);
+}
+
+.btn-primary-custom {
+    background-color: var(--primary-blue);
+    color: white;
+    border-radius: 8px;
+    padding: 10px 30px;
+    border: none;
+}
+
+.btn-primary-custom:hover {
+    background-color: #245d7c;
+    color: white;
+}
+
+.card-custom {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.price-text {
+    color: var(--primary-blue);
+    font-weight: bold;
+}
+
+footer {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+/* Tambahan untuk Form */
+.form-label {
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: var(--primary-blue);
+}
+
+.card-layanan-small {
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    background-color: #fcfcfc;
+    transition: 0.3s;
+}
+
+.badge-harga {
+    background-color: #b9e3e9;
+    color: #2d749a;
+    padding: 5px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.btn-pesan-final {
+    background-color: #b9e3e9;
+    color: #2d749a;
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: 0.3s;
+}
+
+.btn-pesan-final:hover {
+    background-color: #a2d2d9;
+    color: #1e5a7a;
+}
+
+.card-signup {
+    background-color: white;
+    width: 900px;
+    border-radius: 4%;
+    padding: 5%;
+}
+
+/* Styling Efek Navigasi pada Sidebar */
+.sidebar .nav-link {
+    color: #6c757d !important;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Efek ketika kursor mengarah ke menu (Hover) */
+.sidebar .nav-link:hover {
+    background-color: #f8f9fa !important;
+    color: var(--primary-blue) !important;
+    padding-left: 20px; /* Sensasi geser sedikit ke kanan saat dihover */
+}
+
+/* Penanda menu halaman yang sedang aktif */
+/* Ini valid! Target class .active bukan dynamic JS */
+.sidebar .nav-link.active {
+  background-color: #0b5ed7 !important;
+  color: #f8f9fa !important;
+  font-weight: bold;
+}
+
+.sidebar .nav-link i {
+    transition: transform 0.2s ease;
+}
+
+.sidebar .nav-link:hover i {
+    transform: scale(1.15); /* Memperbesar ikon sedikit ketika di-hover */
+}
+
+/* Responsivitas pada layar smartphone */
+@media (max-width: 991.98px) {
+    .sidebar {
+        display: none !important; /* Menyembunyikan sidebar utama di layar kecil jika diperlukan */
+    }
+    #main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+}

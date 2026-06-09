@@ -3,11 +3,15 @@ include 'includes/header.php';
 /** @var mysqli $conn */
 include 'includes.php'; 
 
-// Mengambil data harga per kilogram dari master layanan
-$query = mysqli_query($conn, "SELECT * FROM layanan");
-$layanan = [];
+// Mengambil data lengkap dari master layanan untuk daftar harga & dropdown
+$query = mysqli_query($conn, "SELECT * FROM layanan ORDER BY id_layanan ASC");
+$daftar_layanan = [];
+$layanan_json = [];
+
 while($row = mysqli_fetch_assoc($query)){
-    $layanan[$row['id_layanan']] = $row['harga_perkg'];
+    $daftar_layanan[] = $row;
+    // Menyimpan pasangan ID dan Harga untuk kebutuhan hitung otomatis di JavaScript jika diperlukan
+    $layanan_json[$row['id_layanan']] = $row['harga_perkg'];
 }
 ?>
 
@@ -19,10 +23,8 @@ while($row = mysqli_fetch_assoc($query)){
         </div>
     </div>
 
-    <!-- Form diarahkan ke proses_pesanan_2.php -->
     <form action="proses_pesanan.php" method="POST">
 
-        <!-- BAGIAN 1: INFORMASI PELANGGAN -->
         <div class="card card-custom p-4 mb-4 border-0 shadow-sm">
             <h5 class="fw-bold mb-3">Informasi Pelanggan</h5>
             <p class="text-muted small">Data diri untuk pengiriman dan konfirmasi</p>
@@ -30,103 +32,99 @@ while($row = mysqli_fetch_assoc($query)){
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Nama Lengkap *</label>
-                    <input type="text" name="nama" class="form-control bg-light border-0"
-                        placeholder="Masukkan nama lengkap" required>
+                    <input type="text" name="nama_pelanggan" class="form-control" placeholder="Nama lengkap Anda"
+                        required>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-bold">Nomor Telepon *</label>
-                    <!-- VALIDASI FRONTEND: Batas minimal 10 digit dan hanya menerima angka -->
-                    <input type="tel" name="telepon" class="form-control bg-light border-0" placeholder="08xxxxxxxxxx"
-                        minlength="10" pattern="[0-9]+" required>
-                    <!-- Catatan Petunjuk User -->
-                    <div class="form-text text-danger small mt-1">* Minimal 10 digit angka.</div>
+                    <label class="form-label fw-bold">Nomor WhatsApp *</label>
+                    <input type="tel" name="no_hp" class="form-control" placeholder="Contoh: 08123456789" required>
                 </div>
-                <div class="col-12">
+                <div class="col-md-12">
                     <label class="form-label fw-bold">Alamat Lengkap *</label>
-                    <textarea name="alamat" class="form-control bg-light border-0" rows="2"
-                        placeholder="Jalan, Nomor Rumah, RT/RW, Kelurahan, Kecamatan" required></textarea>
+                    <input type="text" name="alamat" class="form-control"
+                        placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan" required>
+                </div>
+                <div class="col-md-12">
                 </div>
             </div>
         </div>
 
-        <!-- BAGIAN 2: DAFTAR HARGA LAYANAN -->
         <div class="card card-custom p-4 mb-4 border-0 shadow-sm">
-            <h5 class="fw-bold mb-1">Pilih Layanan</h5>
-            <p class="text-muted small mb-4">Pilih jenis layanan laundry yang diinginkan</p>
+            <h5 class="fw-bold mb-1">Daftar Harga Layanan</h5>
+            <p class="text-secondary small mb-4">Berikut adalah tarif kiloan yang berlaku saat ini</p>
 
             <div class="row g-3">
-                <div class="col-md-6">
-                    <div class="card-layanan-small p-3 h-100">
-                        <h6 class="fw-bold mb-1">Cuci Kering</h6>
-                        <p class="text-muted small mb-2">Pakaian di cuci dan dikeringkan</p>
-                        <span class="badge-harga">Rp <?php echo number_format($layanan[1], 0, ',', '.'); ?></span>
+                <?php foreach ($daftar_layanan as $l): ?>
+                <div class="col-md-4">
+                    <div class="p-3 rounded-4 border bg-light">
+                        <span class="small fw-bold text-muted d-block text-uppercase" style="font-size:0.75rem;">Tarif
+                            Kiloan</span>
+                        <h5 class="fw-bold text-dark my-1"><?= htmlspecialchars($l['nama_layanan']) ?></h5>
+                        <p class="text-muted small mb-2" style="font-size:0.8rem; min-height: 24px;">
+                            <?= !empty($l['deskripsi']) ? htmlspecialchars($l['deskripsi']) : 'Layanan cuci higienis dan rapi.' ?>
+                        </p>
+                        <h4 class="fw-bold text-primary mb-0">Rp
+                            <?= number_format($l['harga_perkg'], 0, ',', '.') ?><span
+                                class="fs-6 fw-normal text-muted">/kg</span></h4>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="card-layanan-small p-3 h-100">
-                        <h6 class="fw-bold mb-1">Cuci Setrika</h6>
-                        <p class="text-muted small mb-2">Cuci kering dan setrika rapi</p>
-                        <span class="badge-harga">Rp <?php echo number_format($layanan[2], 0, ',', '.'); ?></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card-layanan-small p-3 h-100">
-                        <h6 class="fw-bold mb-1">Setrika Saja</h6>
-                        <p class="text-muted small mb-2">Hanya layanan setrika</p>
-                        <span class="badge-harga">Rp <?php echo number_format($layanan[3], 0, ',', '.'); ?></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card-layanan-small p-3 h-100">
-                        <h6 class="fw-bold mb-1">Express</h6>
-                        <p class="text-muted small mb-2">Selesai dalam 24 jam</p>
-                        <span class="badge-harga">Rp <?php echo number_format($layanan[4], 0, ',', '.'); ?></span>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
         </div>
 
-        <!-- BAGIAN 3: DETAIL SUBMIT PESANAN -->
-        <div id="container-form">
-            <div class="item-form">
-                <div class="card card-custom p-4 mb-4 border-0 shadow-sm">
+        <div class="card card-custom p-4 mb-4 border-0 shadow-sm">
+            <h5 class="fw-bold mb-1">Detail Pakaian & Layanan</h5>
+            <p class="text-secondary small mb-3">Pilih kategori jenis pengerjaan laundry Anda</p>
+
+            <div id="container-form">
+                <div class="item-form p-3 border rounded-4 bg-white mb-3 position-relative">
+
+                    <button type="button"
+                        class="btn btn-sm btn-light text-danger border position-absolute rounded-3 btn-hapus-form"
+                        style="top: 15px; right: 15px; z-index: 5;" onclick="hapusForm(this)">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Jenis Layanan *</label>
-                            <select name="id_layanan" class="form-select bg-light border-0" required>
-                                <option value="" disabled selected>Pilih jenis layanan</option>
-                                <option value="1">Cuci Kering</option>
-                                <option value="2">Cuci Setrika</option>
-                                <option value="3">Setrika Saja</option>
-                                <option value="4">Express</option>
+                            <label class="form-label small fw-bold text-muted mb-1">Pilih Jenis Layanan</label>
+                            <select name="id_layanan[]" class="form-select border-0 bg-light shadow-sm py-2" required>
+                                <option value="" disabled selected>-- Pilih Layanan --</option>
+                                <?php foreach ($daftar_layanan as $l): ?>
+                                <option value="<?= $l['id_layanan'] ?>">
+                                    <?= htmlspecialchars($l['nama_layanan']) ?> (Rp
+                                    <?= number_format($l['harga_perkg'], 0, ',', '.') ?>/kg)
+                                </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
+
                         <div class="col-12">
-                            <label class="form-label fw-bold">Catatan Tambahan (Opsional)</label>
-                            <textarea name="catatan" class="form-control bg-light border-0 mb-3" rows="4"
-                                placeholder="Instruksi khusus atau catatan untuk pesanan Anda"></textarea>
+                            <label class="form-label small fw-bold text-muted mb-1">Catatan Khusus (Opsional)</label>
+                                <textarea type="text" name="catatan" class="form-control"
+                                    placeholder="Contoh: jangan campur pakaian luntur, setrika rapi">
+                                </textarea>
+                            </div>
                         </div>
                     </div>
-                     <button type="button" class="btn btn-danger" onclick="hapusForm(this)">
-                                <i class="bi bi-trash me-1"></i>Hapus Pesanan
-                            </button>
+
                 </div>
             </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <button type="button" id="btn-tambah"
+                    class="btn bg-white shadow-sm rounded-pill px-4 py-2 border text-dark fw-bold" style="width: 49%;">
+                    <i class="bi bi-plus-circle-fill me-1" style="color: #083954ff;"></i> Tambah Pesanan
+                </button>
+                <button type="submit"
+                    class="btn btn-pesan-final d-flex align-items-center justify-content-center text-white"
+                    style="width: 49%; background-color: #0b5ed7;">
+                    <i class="bi bi-floppy2-fill me-1"></i>Pesan Sekarang
+                </button>
+            </div>
         </div>
-
-
-                <div class="d-flex justify-content-between mb-4">
-                    <button type="button" class="btn btn-info d-flex align-items-center justify-content-center fw-bold" style="width: 49%; color: #083954ff; font-size: 1.1rem;" id="btn-tambah">
-                        <i class="bi bi-plus-square me-1" style=" color: #083954ff; font-size : 1.1rem"></i>Tambah Pesanan
-                    </button>
-                    <!-- tombol Simpan sekarang di dalam <form> -->
-                    <button type="submit" class="btn btn-pesan-final d-flex align-items-center justify-content-center" style="width: 49%;">
-                        <i class="bi bi-floppy2-fill me-1"></i>Pesan Sekarang
-                    </button>
-                </div>
     </form>
 </div>
-
 
 <script>
 const container = document.getElementById('container-form');
@@ -136,9 +134,9 @@ btnTambah.addEventListener('click', function() {
     const formAsli = document.querySelector('.item-form');
     const formBaru = formAsli.cloneNode(true);
 
-    //Reset semua input, bukan cuma yang pertama
+    // Reset semua nilai input/select di form duplikasi baru
+    formBaru.querySelectorAll('input').php
     formBaru.querySelectorAll('input').forEach(input => {
-        alue = '';
         input.value = '';
     });
     formBaru.querySelectorAll('select').forEach(select => {
@@ -148,16 +146,15 @@ btnTambah.addEventListener('click', function() {
     container.appendChild(formBaru);
 });
 
-//FIX: nama fungsi hapusForm (camelCase), this = tombol button itu sendiri
 function hapusForm(tombol) {
     const jumlahForm = document.querySelectorAll('.item-form').length;
 
     if (jumlahForm > 1) {
-        //parentElement dari button → card → item-form
-        tombol.closest('.item-form').remove();
+        tombol.parentElement.remove();
     } else {
-        alert("Minimal harus ada satu form!");
+        alert('Minimal harus memesan 1 layanan laundry!');
     }
 }
 </script>
-<?php include 'includes/footer.php'; ?>
+
+<?php include 'includes/footer2.php'; ?>

@@ -7,7 +7,7 @@ if (!isset($_SESSION['login'])) {
     exit;
 }
 
-include 'includes/header.php';
+include 'includes/navbar.php';
 /** @var mysqli $conn */
 include 'includes.php';
 
@@ -43,7 +43,7 @@ if (isset($_POST['tambah_layanan'])) {
 if (isset($_POST['edit_layanan'])) {
     $id_layanan   = (int) $_POST['id_layanan'];
     $nama_layanan = mysqli_real_escape_string($conn, trim($_POST['nama_layanan']));
-    $deskripsi     = mysqli_real_escape_string($conn, trim($_POST['deskripsi']));
+    $deskripsi    = mysqli_real_escape_string($conn, trim($_POST['deskripsi']));
     $harga_per_kg = (int) $_POST['harga_per_kg'];
 
     $cek_nama = mysqli_query($conn, "SELECT * FROM layanan WHERE nama_layanan = '$nama_layanan' AND id_layanan != $id_layanan");
@@ -51,11 +51,12 @@ if (isset($_POST['edit_layanan'])) {
     if (mysqli_num_rows($cek_nama) > 0) {
         $pesan_error = "Gagal memperbarui! Nama layanan '$nama_layanan' sudah digunakan oleh layanan lain.";
     } else {
+        // Sinkronisasi Query Update kolom 'harga_perkg' di database
         $query_update = "UPDATE layanan SET nama_layanan = '$nama_layanan', deskripsi = '$deskripsi', harga_perkg = $harga_per_kg WHERE id_layanan = $id_layanan";
         if (mysqli_query($conn, $query_update)) {
             $pesan_sukses = "Data layanan berhasil diperbarui!";
         } else {
-            $pesan_error = "Gagal memperbarui data layanan.";
+            $pesan_error = "Gagal memperbarui data layanan di database.";
         }
     }
 }
@@ -83,7 +84,6 @@ if (isset($_POST['hapus_layanan'])) {
 $result = mysqli_query($conn, "SELECT * FROM layanan ORDER BY id_layanan DESC");
 ?>
 
-<!-- Menambahkan CSS Kustom agar gaya visual persis seperti image_9244ae.png -->
 <style>
 body {
     background-color: #dbe7f3;
@@ -289,7 +289,7 @@ body {
 
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Nama Jasa / Layanan</label>
-                        <input type="text" name="nama_layanan" id="edit-nama" class="form-control py-2 rounded-3" required>
+                        <input type="text" name="nama_layanan" id="edit-nama" class="form-control py-2 rounded-3">
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Deskripsi Keterangan</label>
@@ -299,7 +299,7 @@ body {
                         <label class="form-label small fw-bold text-muted">Harga per Kilogram (kg)</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border text-muted">Rp</span>
-                            <input type="number" name="harga_per_kg" id="edit-harga" class="form-control py-2 rounded-3" min="0" required>
+                            <input type="number" name="harga_per_kg" id="edit-harga" class="form-control py-2 rounded-3" min="0">
                         </div>
                     </div>
                 </div>
@@ -313,17 +313,17 @@ body {
 </div>
 
 <script>
-document.querySelectorAll('.btn-edit').forEach(button => {
+document.querySelectorAll('.btn-action-edit').forEach(button => {
     button.addEventListener('click', function() {
         const id_layanan   = this.getAttribute('data-id');
         const nama_layanan = this.getAttribute('data-nama');
         const deskripsi    = this.getAttribute('data-deskripsi');
-        const harga_per_kg = this.getAttribute('data-harga');
+        const harga_perkg  = this.getAttribute('data-harga');
 
         document.getElementById('edit-id').value = id_layanan;
         document.getElementById('edit-nama').value = nama_layanan;
         document.getElementById('edit-deskripsi').value = deskripsi;
-        document.getElementById('edit-harga').value = harga_per_kg;
+        document.getElementById('edit-harga').value = harga_perkg;
     });
 });
 </script>

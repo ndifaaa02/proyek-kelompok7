@@ -1,5 +1,12 @@
 <?php
-include 'includes/header.php';
+session_start();
+
+// Proteksi halaman admin
+if (!isset($_SESSION['login'])) {
+    header("Location: admin_login.php");
+    exit;
+}
+include 'includes/navbar.php';
 include 'includes.php'; // Pastikan koneksi database sudah benar
 ?>
 

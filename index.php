@@ -9,12 +9,24 @@ $query = mysqli_query($conn, "SELECT * FROM layanan");
         $layanan[$row['id_layanan']] = $row['harga_perkg'];
     }
 
+// Mengambil data lengkap dari master layanan untuk daftar harga & dropdown
+$query = mysqli_query($conn, "SELECT * FROM layanan ORDER BY id_layanan ASC");
+$daftar_layanan = [];
+$layanan_json = [];
+
+while($row = mysqli_fetch_assoc($query)){
+    $daftar_layanan[] = $row;
+    // Menyimpan pasangan ID dan Harga untuk kebutuhan hitung otomatis di JavaScript jika diperlukan
+    $layanan_json[$row['id_layanan']] = $row['harga_perkg'];
+}
+
 ?>
 
 <section class="text-center py-5">
     <div class="container">
         <h1 class="display-4 fw-bold mb-3" style="color: #2d749a;">Laundry Berkualitas, Bersih & Wangi</h1>
-        <p class="text-secondary mb-4">Percayakan cucian Anda pada Bintang Laundry. Layanan cepat, hasil maksimal, harga terjangkau</p>
+        <p class="text-secondary mb-4">Percayakan cucian Anda pada Bintang Laundry. Layanan cepat, hasil maksimal, harga
+            terjangkau</p>
         <a href="pesan.php" class="btn btn-primary-custom fw-bold">Pesan Sekarang</a>
     </div>
 </section>
@@ -51,22 +63,21 @@ $query = mysqli_query($conn, "SELECT * FROM layanan");
 <section class="py-5">
     <div class="container">
         <h3 class="fw-bold text-center mb-5" style="color: #555;">Layanan Kami</h3>
-        <div class="row g-4">
-            <?php
-            $menu_layanan = [
-                ["Cuci Kering", "Layanan cuci dan kering pakaian dengan standar kebersihan terbaik.", $layanan[1]],
-                ["Cuci Setrika", "Pakaian dicuci bersih dan disetrika rapi siap pakai.",$layanan[2]],
-                ["Setrika Saja", "Layanan khusus untuk pakaian yang sudah bersih.", $layanan[3]],
-                ["Express", "Layanan kilat kebutuhan mendesak selesai dalam 24 jam.",$layanan[4]]
-            ];
-            foreach ($menu_layanan as $item) : ?> 
-                <div class="col-md-6">
-                    <div class="card card-custom p-4 border-0">
-                        <h5 class="fw-bold"><?= $item[0] ?></h5>
-                        <p class="text-muted small"><?= $item[1] ?></p>
-                        <p class="price-text mb-0">Mulai dari Rp <?= number_format($item[2], 0, ',', '.') ?>/kg</p>
-                    </div>
+        <div class="row g-3">
+            <?php foreach ($daftar_layanan as $l): ?>
+            <div class="col-md-4">
+                <div class="p-3 rounded-4 border bg-light">
+                    <span class="small fw-bold text-muted d-block text-uppercase" style="font-size:0.75rem;">Tarif
+                        Kiloan</span>
+                    <h5 class="fw-bold text-dark my-1"><?= htmlspecialchars($l['nama_layanan']) ?></h5>
+                    <p class="text-muted small mb-2" style="font-size:0.8rem; min-height: 24px;">
+                        <?= !empty($l['deskripsi']) ? htmlspecialchars($l['deskripsi']) : 'Layanan cuci higienis dan rapi.' ?>
+                    </p>
+                    <h4 class="fw-bold text-primary mb-0">Rp
+                        <?= number_format($l['harga_perkg'], 0, ',', '.') ?><span
+                            class="fs-6 fw-normal text-muted">/kg</span></h4>
                 </div>
+            </div>
             <?php endforeach; ?>
         </div>
     </div>
@@ -82,4 +93,4 @@ $query = mysqli_query($conn, "SELECT * FROM layanan");
     </div>
 </section>
 
-<?php include 'includes/footer.php'; ?>
+<?php include 'includes/footer2.php'; ?>
